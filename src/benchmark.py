@@ -2,6 +2,7 @@ import embeddings
 from sentence_transformers import SentenceTransformer, util
 import time
 
+#COMPARING 3 MODELS
 #tied between MiniLM and MPNet for fastest encoding, it alternates between the 2 for the fastest everytime i run it.
 
 model = SentenceTransformer('sentence-transformers/LaBSE')
