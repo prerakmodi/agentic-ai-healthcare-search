@@ -5,60 +5,39 @@ import time
 #COMPARING 3 MODELS
 #tied between MiniLM and MPNet for fastest encoding, it alternates between the 2 for the fastest everytime i run it.
 
-model = SentenceTransformer('sentence-transformers/LaBSE')
-embeddings1 = model.encode(embeddings.sentences)
-model2 = SentenceTransformer('sentence-transformers/all-MiniLM-L12-v2')
-embeddings2 = model2.encode(embeddings.sentences)
-model3 = SentenceTransformer('sentence-transformers/all-mpnet-base-v2')
-embeddings3 = model3.encode(embeddings.sentences)
+def test_model(model_name: str, verbose: int = 1) -> dict:
+    model = SentenceTransformer(model_name)
+    embeddings1 = model.encode(embeddings.sentences)
+
+    start = time.time()
+    _ = model.encode(embeddings.sentences)
+    encode_time_labse = time.time() - start
+
+    start = time.time()
+    similarities = model.similarity(embeddings1, embeddings1)
+    similarity_time_labse = time.time() - start
+
+    if verbose:
+        print(f"{model_name} encoding time: {encode_time_labse:.4f} seconds")
+        print(f"{model_name} similarity time: {similarity_time_labse:.4f} seconds")
+        print(f"{model_name} similarities:")
+        print(similarities)
+    return {"Encoding Time":encode_time_labse,"Similarity Time":similarity_time_labse}
 
 if __name__ == "__main__":
     # LaBSE model timing currently at: around 8 seconds encoding
     # 0.0114 seconds similarity run time
     
     #LaBSE Encoding Timing
-    start = time.time()
-    _ = model.encode(embeddings.sentences)
-    encode_time_labse = time.time() - start
-    #LaBSE Similarity Timing
-    start = time.time()
-    similarities = model.similarity(embeddings1, embeddings1)
-    similarity_time_labse = time.time() - start
-
-    print(f"LaBSE encoding time: {encode_time_labse:.4f} seconds")
-    print(f"LaBSE similarity time: {similarity_time_labse:.4f} seconds")
-    print("LaBSE similarities:")
-    print(similarities)
+    test_model('sentence-transformers/LaBSE')
 
     # MiniLM model timing
     # MINILM model timing currently at: around 3 seconds encoding
     # 0.0001 seconds similarity run time
-    start = time.time()
-    _ = model2.encode(embeddings.sentences)
-    encode_time_minilm = time.time() - start
-
-    start = time.time()
-    similarities2 = model2.similarity(embeddings2, embeddings2)
-    similarity_time_minilm = time.time() - start
-
-    print(f"MiniLM encoding time: {encode_time_minilm:.4f} seconds")
-    print(f"MiniLM similarity time: {similarity_time_minilm:.4f} seconds")
-    print("MiniLM similarities:")
-    print(similarities2)
+    test_model("sentence-transformers/all-MiniLM-L12-v2")
 
     # all-mpnet-base-v2 model timing
     # all-mpnet-base-v2 model timing currently at: around 3 seconds encoding
     # 0.0189 seconds similarity run time
-    start = time.time()
-    _ = model3.encode(embeddings.sentences)
-    encode_time_mpnet = time.time() - start
-
-    start = time.time()
-    similarities3 = model3.similarity(embeddings3, embeddings3)
-    similarity_time_mpnet = time.time() - start
-
-    print(f"MPNet encoding time: {encode_time_mpnet:.4f} seconds")
-    print(f"MPNet similarity time: {similarity_time_mpnet:.4f} seconds")
-    print("MPNet similarities:")
-    print(similarities3)
+    test_model("sentence-transformers/all-mpnet-base-v2")
 
